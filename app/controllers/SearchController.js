@@ -21,8 +21,8 @@ class SearchController {
                 const users = await User.find({ $text: { $search: search } }, { score: { $meta: "textScore" } }).sort({
                     score: { $meta: "textScore" },
                 });
-                const result = { songs, playlists, users };
-                res.status(200).json({ success: true, result: result });
+                const data = { songs, playlists, users };
+                res.status(200).json({ success: true, data });
             }
         } catch (error) {
             console.log(error);

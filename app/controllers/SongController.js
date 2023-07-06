@@ -21,7 +21,7 @@ class SongController {
             newSong.song = urlSong;
             newSong.image = urlImage;
             await newSong.save();
-            return res.status(201).json({ success: true, message: "Create Song Success", song: newSong });
+            return res.status(201).json({ success: true, message: "Create Song Success", data: { song: newSong } });
         } catch (error) {
             console.log(error);
             res.status(500).json({ success: false, message: "Internal server error!" });
@@ -37,7 +37,7 @@ class SongController {
             if (!song) {
                 return res.status(404).json({ success: false, message: "Can't not find song" });
             }
-            res.status(200).json({ success: true, message: "Updated song successfully", data: song });
+            res.status(200).json({ success: true, message: "Updated song successfully", data: { data: song } });
         } catch (error) {
             console.log(error);
             res.status(500).json({ success: false, message: "Internal server error!" });
@@ -72,7 +72,7 @@ class SongController {
             }
             const newUser = await data[0].save();
 
-            res.status(200).json({ success: true, message: resMessage, user: newUser });
+            res.status(200).json({ success: true, message: resMessage, data: { user: newUser } });
         } catch (error) {
             console.log(error);
             res.status(500).json({ success: false, message: "Internal server error!" });
@@ -85,7 +85,7 @@ class SongController {
         try {
             const user = await User.findById(req.userId);
             if (user.likedSongs.length === 0) {
-                return res.status(200).json({ success: true, songs: [] });
+                return res.status(200).json({ success: true, data: { songs: [] } });
             }
             const idLikedSongs = user.likedSongs.map((song) => song.id);
             const songsAddedAt = user.likedSongs.map((song) => song.addedAt);
@@ -94,7 +94,7 @@ class SongController {
                 const index = songs.findIndex((songInfo) => songInfo._id === song.id);
                 return songs[index];
             });
-            res.status(200).send({ success: true, songs: likedSongs, addedAt: songsAddedAt });
+            res.status(200).send({ success: true, data: { songs: likedSongs, addedAt: songsAddedAt } });
         } catch (error) {
             console.log(error);
             res.status(500).json({ success: false, message: "Internal server error!" });
@@ -107,7 +107,7 @@ class SongController {
         try {
             const { limit, ...condition } = req.query;
             const songs = await Song.find(condition).sort({ createdAt: -1 }).limit(limit);
-            res.status(200).send({ success: true, songs: songs });
+            res.status(200).send({ success: true, data: { songs: songs } });
         } catch (error) {
             console.log(error);
             res.status(500).json({ success: false, message: "Internal server error!" });

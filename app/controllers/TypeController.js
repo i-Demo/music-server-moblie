@@ -15,7 +15,7 @@ class TypeController {
             const urlImage = await uploadImage(image, newType._id);
             newType.image = urlImage;
             await newType.save();
-            return res.status(201).json({ success: true, message: "Create Type Success", type: newType });
+            return res.status(201).json({ success: true, message: "Create Type Success", data: { type: newType } });
         } catch (error) {
             console.log(error);
             res.status(500).json({ success: false, message: "Internal server error!" });
@@ -27,7 +27,7 @@ class TypeController {
         try {
             const { ...params } = req.query;
             const types = await Type.find(params);
-            return res.status(201).json({ success: true, types: types });
+            return res.status(201).json({ success: true, data: { types: types } });
         } catch (error) {
             console.log(error);
             res.status(500).json({ success: false, message: "Internal server error!" });

@@ -11,7 +11,7 @@ class AuthController {
         try {
             const user = await User.findById(req.userId).select("-password -__v -updatedAt");
             if (!user) return res.status(400).json({ success: false, message: "User not found" });
-            res.status(200).json({ success: true, user });
+            res.status(200).json({ success: true, data: { user } });
         } catch (error) {
             console.log(error);
             res.status(500).json({ success: false, message: "Internal Server Error" });
@@ -25,7 +25,7 @@ class AuthController {
             email: joi.string().email().required(),
         });
         const { error } = schema.validate(req.query);
-        if (error) return res.status(400).send({ message: error.details[0].message });
+        if (error) return res.status(400).json({ success: false, message: error.details[0].message });
 
         try {
             const user = await User.findOne(req.query);
@@ -75,7 +75,7 @@ class AuthController {
                 success: true,
                 message: "Register User Success!",
                 accessToken,
-                user: newUser,
+                data: { user: newUser },
             });
         } catch (error) {
             console.log(error);
@@ -115,7 +115,7 @@ class AuthController {
                 success: true,
                 message: "Login Successfully!",
                 accessToken,
-                user,
+                data: { user },
             });
         } catch (error) {
             console.log(error);
@@ -139,7 +139,7 @@ class AuthController {
                 user.avatar = url;
             }
             const newUser = await user.save();
-            return res.status(200).json({ success: true, user: newUser });
+            return res.status(200).json({ success: true, data: { user: newUser } });
         } catch (error) {
             console.log(error);
             res.status(500).json({ success: false, message: "Internal Server Error" });
@@ -152,7 +152,7 @@ class AuthController {
         try {
             const user = await User.findById(req.params.id).select("-password -__v -updatedAt");
             if (!user) return res.status(400).json({ success: false, message: "User not found" });
-            res.status(200).json({ success: true, user });
+            res.status(200).json({ success: true, data: { user } });
         } catch (error) {
             console.log(error);
             res.status(500).json({ success: false, message: "Internal Server Error" });

@@ -15,14 +15,14 @@ class PlaylistController {
             const user = await User.findById(req.userId).select("-password -__v -updatedAt");
             if (user.isAdmin) {
                 const { error } = validate(req.body);
-                if (error) return res.status(400).send({ message: error.details[0].message });
+                if (error) return res.status(400).json({ success: false, message: error.details[0].message });
             } else {
                 const schema = joi.object({
                     name: joi.string().required(),
                     isPublic: joi.boolean(),
                 });
                 const { error } = schema.validate(req.body);
-                if (error) return res.status(400).send({ message: error.details[0].message });
+                if (error) return res.status(400).json({ success: false, message: error.details[0].message });
             }
             const { name, isPublic } = req.body;
             const newPlaylist = new Playlist({
@@ -44,7 +44,7 @@ class PlaylistController {
             }
             Promise.all([newPlaylist.save(), user.save()])
                 .then(([newPlaylist, user]) => {
-                    res.status(201).json({ success: true, user: user, playlist: newPlaylist });
+                    res.status(201).json({ success: true, data: { user: user, playlist: newPlaylist } });
                 })
                 .catch((err) => {
                     console.log(err);
@@ -94,8 +94,7 @@ class PlaylistController {
             res.status(200).send({
                 success: true,
                 message: "Updated successfully",
-                user: newUser,
-                playlist: newPlaylist,
+                data: { user: newUser, playlist: newPlaylist },
             });
         } catch (error) {
             console.log(error);
@@ -125,7 +124,7 @@ class PlaylistController {
                 await data[1].save();
                 res.status(200).send({ success: true, message: "Added to Playlist" });
             } else {
-                res.status(200).send({ success: true, message: "Song already exits" });
+                res.status(200).send({ success: true, message: "Song already exist" });
             }
         } catch (error) {
             console.log(error);
@@ -154,7 +153,7 @@ class PlaylistController {
             } else {
                 data[1].songs.splice(index, 1);
                 const newPlaylist = await data[1].save();
-                res.status(200).send({ success: true, message: "Removed Song", playlist: newPlaylist });
+                res.status(200).send({ success: true, message: "Removed Song", data: { playlist: newPlaylist } });
             }
         } catch (error) {
             console.log(error);
@@ -184,7 +183,7 @@ class PlaylistController {
             const playlists = await Playlist.aggregate([{ $match: params }, { $sample: { size: size } }]).sort({
                 _id: -1,
             });
-            res.status(200).json({ success: true, playlists: playlists });
+            res.status(200).json({ success: true, data: { playlists: playlists } });
         } catch (error) {
             console.log(error);
             res.status(500).json({ success: false, message: "Internal Server Error" });
@@ -203,7 +202,7 @@ class PlaylistController {
             const songsSort = playlist.songs.map((songData) => {
                 return songs.filter((song) => song._id === songData.id)[0];
             });
-            res.status(200).json({ success: true, playlist: playlist, songs: songsSort, addedAt: addedAt });
+            res.status(200).json({ success: true, data: { playlist: playlist, songs: songsSort, addedAt: addedAt } });
         } catch (error) {
             console.log(error);
             res.status(500).json({ success: false, message: "Internal Server Error" });
@@ -222,7 +221,7 @@ class PlaylistController {
                 { new: true }
             );
             if (!playlists) return res.status(404).json({ success: false, message: "Playlist not found" });
-            res.status(200).json({ success: true, playlist: playlists });
+            res.status(200).json({ success: true, data: { playlist: playlists } });
         } catch (error) {
             console.log(error);
             res.status(500).json({ success: false, message: "Internal Server Error" });
@@ -247,7 +246,7 @@ class PlaylistController {
             }
             const newUser = await data[0].save();
 
-            res.status(200).json({ success: true, message: resMessage, user: newUser });
+            res.status(200).json({ success: true, message: resMessage, data: { user: newUser } });
         } catch (error) {
             console.log(error);
             res.status(500).json({ success: false, message: "Internal Server Error" });
@@ -275,7 +274,7 @@ class PlaylistController {
             }
             const newUser = await data[0].save();
 
-            res.status(200).json({ success: true, message: resMessage, user: newUser });
+            res.status(200).json({ success: true, message: resMessage, data: { user: newUser } });
         } catch (error) {
             console.log(error);
             res.status(500).json({ success: false, message: "Internal Server Error" });
@@ -297,7 +296,7 @@ class PlaylistController {
             data[0].myPlaylists.splice(index1, 1);
             if (index2 !== -1) data[0].publicPlaylists.splice(index2, 1);
             const result = await Promise.all([data[0].save(), data[1].deleteOne()]);
-            res.status(200).send({ success: true, message: "Deleted playlist", user: result[0] });
+            res.status(200).send({ success: true, message: "Deleted playlist", data: { user: result[0] } });
         } catch (error) {
             console.log(error);
             res.status(500).json({ success: false, message: "Internal Server Error" });
@@ -319,7 +318,7 @@ class PlaylistController {
                     },
                 },
             ]);
-            res.status(200).json({ success: true, result: result });
+            res.status(200).json({ success: true, data: { playlists: result } });
         } catch (error) {
             console.log(error);
             res.status(500).json({ success: false, message: "Internal Server Error" });
