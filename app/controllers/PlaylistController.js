@@ -318,7 +318,7 @@ class PlaylistController {
                     },
                 },
             ]);
-            res.status(200).json({ success: true, data: { playlists: result } });
+            res.status(200).json({ success: true, data: { result } });
         } catch (error) {
             console.log(error);
             res.status(500).json({ success: false, message: "Internal Server Error" });
