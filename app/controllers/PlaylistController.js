@@ -307,7 +307,7 @@ class PlaylistController {
     // Get Playlists by Type and Group Genre
     async getPlaylistsByType(req, res, next) {
         try {
-            const data = await Playlist.aggregate([
+            const data = await Playlist.aggregate(
                 { $match: { type: req.params.type } },
                 { $group: { _id: "$genre", playlists: { $addToSet: "$$CURRENT" } } },
                 {
@@ -316,8 +316,8 @@ class PlaylistController {
                         _id: 0,
                         playlists: 1,
                     },
-                },
-            ]);
+                }
+            );
             res.status(200).json({ success: true, data });
         } catch (error) {
             console.log(error);
